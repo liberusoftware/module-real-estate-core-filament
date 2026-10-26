@@ -7,6 +7,7 @@ namespace Liberu\RealEstate\CoreFilament\Resources;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -20,25 +21,40 @@ final class TerritoryResource extends Resource
 {
     protected static ?string $model = Territory::class;
 
+    public static function getModelLabel(): string
+    {
+        return __('filament.resources.territory.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('filament.resources.territory.plural');
+    }
+
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-map';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Real Estate';
+    protected static string|\UnitEnum|null $navigationGroup = 'Недвижимость';
 
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            TextInput::make('name')->required()->maxLength(255),
-            TextInput::make('code')->required()->uppercase()->maxLength(20),
-            Textarea::make('boundary')->helperText('Optional JSON boundary metadata.')->columnSpanFull(),
+            Section::make(__('filament.territory.sections.details'))
+                ->description(__('filament.territory.sections.details_description'))
+                ->columns(2)
+                ->schema([
+                    TextInput::make('name')->label(__('filament.territory.fields.name'))->required()->maxLength(255),
+                    TextInput::make('code')->label(__('filament.territory.fields.code'))->required()->maxLength(20)->dehydrateStateUsing(fn (?string $state): ?string => $state !== null ? mb_strtoupper($state) : null),
+                    Textarea::make('boundary')->label(__('filament.territory.fields.boundary'))->helperText('Optional JSON boundary metadata.')->columnSpanFull(),
+                ]),
         ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table->columns([
-            TextColumn::make('name')->searchable(),
-            TextColumn::make('code')->badge(),
-            TextColumn::make('created_at')->dateTime()->sortable(),
+            TextColumn::make('name')->label(__('filament.territory.fields.name'))->searchable(),
+            TextColumn::make('code')->label(__('filament.territory.fields.code'))->badge(),
+            TextColumn::make('created_at')->label(__('filament.territory.fields.created_at'))->dateTime()->sortable(),
         ])->defaultSort('created_at', 'desc');
     }
 
